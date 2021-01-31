@@ -295,22 +295,28 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         paintButton.setScaleType(ImageView.ScaleType.CENTER);
         paintButton.setImageResource(R.drawable.photo_paint);
         paintButton.setBackgroundDrawable(Theme.createSelectorDrawable(Theme.ACTION_BAR_WHITE_SELECTOR_COLOR));
-        toolsView.addView(paintButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 0, 0, 56, 0));
+        toolsView.addView(paintButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 0, 0, 72, 0));
         paintButton.setOnClickListener(v -> selectEntity(null));
 
         ImageView stickerButton = new ImageView(context);
         stickerButton.setScaleType(ImageView.ScaleType.CENTER);
         stickerButton.setImageResource(R.drawable.photo_sticker);
         stickerButton.setBackgroundDrawable(Theme.createSelectorDrawable(Theme.ACTION_BAR_WHITE_SELECTOR_COLOR));
-        toolsView.addView(stickerButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER));
+        toolsView.addView(stickerButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 0,0,16,0));
         stickerButton.setOnClickListener(v -> openStickersView());
 
         ImageView textButton = new ImageView(context);
         textButton.setScaleType(ImageView.ScaleType.CENTER);
         textButton.setImageResource(R.drawable.photo_paint_text);
         textButton.setBackgroundDrawable(Theme.createSelectorDrawable(Theme.ACTION_BAR_WHITE_SELECTOR_COLOR));
-        toolsView.addView(textButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 56, 0, 0, 0));
+        toolsView.addView(textButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 40, 0, 0, 0));
         textButton.setOnClickListener(v -> createText(true));
+
+        ImageView blurButton = new ImageView(context);
+        blurButton.setScaleType(ImageView.ScaleType.CENTER);
+        blurButton.setImageResource(R.drawable.blur_linear);
+        toolsView.addView(blurButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 96, 0, 0, 0));
+        blurButton.setOnClickListener(v -> {});
 
         colorPicker.setUndoEnabled(false);
         setCurrentSwatch(colorPicker.getSwatch(), false);
