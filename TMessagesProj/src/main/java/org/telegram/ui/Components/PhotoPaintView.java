@@ -94,6 +94,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     private float[] temp = new float[2];
 
     private ImageView paintButton;
+    private ImageView blurButton;
 
     private EntityView currentEntityView;
 
@@ -131,6 +132,8 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     private boolean inBubbleMode;
 
     private MediaController.CropState currentCropState;
+
+    private int selectedTool = 0;
 
     public PhotoPaintView(Context context, Bitmap bitmap, Bitmap originalBitmap, int originalRotation, ArrayList<VideoEditedInfo.MediaEntity> entities, MediaController.CropState cropState, Runnable onInit) {
         super(context);
@@ -312,11 +315,12 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         toolsView.addView(textButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 40, 0, 0, 0));
         textButton.setOnClickListener(v -> createText(true));
 
-        ImageView blurButton = new ImageView(context);
+        blurButton = new ImageView(context);
         blurButton.setScaleType(ImageView.ScaleType.CENTER);
         blurButton.setImageResource(R.drawable.blur_linear);
+        blurButton.setBackgroundDrawable(Theme.createSelectorDrawable(Theme.ACTION_BAR_WHITE_SELECTOR_COLOR));
         toolsView.addView(blurButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 96, 0, 0, 0));
-        blurButton.setOnClickListener(v -> {});
+        blurButton.setOnClickListener(v -> {selectedTool = 3;});
 
         colorPicker.setUndoEnabled(false);
         setCurrentSwatch(colorPicker.getSwatch(), false);
@@ -418,6 +422,9 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
             }
             paintButton.setImageResource(R.drawable.photo_paint);
             paintButton.setColorFilter(null);
+        } else if (selectedTool == 3) {
+            blurButton.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_dialogFloatingButton), PorterDuff.Mode.MULTIPLY));
+            blurButton.setImageResource(R.drawable.blur_linear);
         } else {
             if (brushSwatch != null) {
                 setCurrentSwatch(brushSwatch, true);
@@ -959,6 +966,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private boolean selectEntity(EntityView entityView) {
+        if (entityView == null) selectedTool = 0;
         boolean changed = false;
 
         if (currentEntityView != null) {
@@ -1039,6 +1047,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private void openStickersView() {
+        selectedTool = 1;
         StickerMasksAlert stickerMasksAlert = new StickerMasksAlert(getContext(), facesBitmap == null);
         stickerMasksAlert.setDelegate((parentObject, sticker) -> createSticker(parentObject, sticker, true));
         stickerMasksAlert.setOnDismissListener(dialog -> onOpenCloseStickersAlert(false));
@@ -1091,6 +1100,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private TextPaintView createText(boolean select) {
+        if(select) selectedTool = 2;
         onTextAdd();
         Swatch currentSwatch = colorPicker.getSwatch();
         Swatch swatch;
