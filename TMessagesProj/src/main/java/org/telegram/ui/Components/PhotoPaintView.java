@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -259,6 +260,8 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                         mirrorSticker();
                     } else if (currentEntityView instanceof TextPaintView) {
                         showTextSettings();
+                    } else if (currentEntityView instanceof  BlurPaintView) {
+                       Log.d("Blur", "Blur settings pressed");
                     }
                 } else {
                     showBrushSettings();
@@ -358,6 +361,10 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                     swatch.color = entity.color;
                     textPaintView.setSwatch(swatch);
                     view = textPaintView;
+                } else if (entity.type == 2) {
+                    Log.d("Blur", "Entity type 2");
+                    BlurPaintView blurPaintView = createBlur(originalBitmap, false);
+                    view = blurPaintView;
                 } else {
                     continue;
                 }
@@ -422,12 +429,13 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                 resource = R.drawable.photo_flip;
             } else if (currentEntityView instanceof TextPaintView) {
                 resource = R.drawable.photo_outline;
+            } else if (currentEntityView instanceof BlurPaintView) {
+                resource = R.drawable.blur_linear;
+                blurButton.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_dialogFloatingButton), PorterDuff.Mode.MULTIPLY));
+                blurButton.setImageResource(R.drawable.blur_linear);
             }
             paintButton.setImageResource(R.drawable.photo_paint);
             paintButton.setColorFilter(null);
-        } else if (selectedTool == 3) {
-            blurButton.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_dialogFloatingButton), PorterDuff.Mode.MULTIPLY));
-            blurButton.setImageResource(R.drawable.blur_linear);
         } else {
             if (brushSwatch != null) {
                 setCurrentSwatch(brushSwatch, true);
@@ -542,6 +550,9 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                         if (stickerView.isMirrored()) {
                             mediaEntity.subType |= 2;
                         }
+                    } else if (entity instanceof BlurPaintView) {
+                        Log.d("Blur", "Get bitmap");
+                        mediaEntity.type = 2;
                     } else {
                         continue;
                     }
@@ -969,7 +980,11 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private boolean selectEntity(EntityView entityView) {
-        if (entityView == null) selectedTool = 0;
+        if (entityView instanceof StickerView) selectedTool = 1;
+        else if (entityView instanceof TextPaintView) selectedTool = 2;
+        else if (entityView instanceof BlurPaintView) selectedTool = 3;
+        else selectedTool = 0;
+
         boolean changed = false;
 
         if (currentEntityView != null) {
@@ -1041,6 +1056,10 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
             newTextPaintView.setMaxWidth((int) (getPaintingSize().width - 20));
             entitiesView.addView(newTextPaintView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
             entityView = newTextPaintView;
+        } else if (currentEntityView instanceof BlurPaintView) {
+            BlurPaintView newBlurPaintView = new BlurPaintView(getContext(), position, facesBitmap);
+            newBlurPaintView.setDelegate(this);
+            entityView = newBlurPaintView;
         }
 
         registerRemovalUndo(entityView);
@@ -1050,7 +1069,6 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private void openStickersView() {
-        selectedTool = 1;
         StickerMasksAlert stickerMasksAlert = new StickerMasksAlert(getContext(), facesBitmap == null);
         stickerMasksAlert.setDelegate((parentObject, sticker) -> createSticker(parentObject, sticker, true));
         stickerMasksAlert.setOnDismissListener(dialog -> onOpenCloseStickersAlert(false));
@@ -1103,7 +1121,6 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private TextPaintView createText(boolean select) {
-        if(select) selectedTool = 2;
         onTextAdd();
         Swatch currentSwatch = colorPicker.getSwatch();
         Swatch swatch;
