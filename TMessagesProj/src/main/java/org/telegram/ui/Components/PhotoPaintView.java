@@ -441,6 +441,9 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                 setCurrentSwatch(brushSwatch, true);
                 brushSwatch = null;
             }
+            blurButton.setImageResource(R.drawable.blur_linear);
+            blurButton.setColorFilter(null);
+
             paintButton.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_dialogFloatingButton), PorterDuff.Mode.MULTIPLY));
             paintButton.setImageResource(R.drawable.photo_paint);
         }
