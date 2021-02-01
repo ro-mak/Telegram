@@ -310,7 +310,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 29
         versionName "7.4.2"
-
+        renderscriptSupportModeEnabled true
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 
         externalNativeBuild {

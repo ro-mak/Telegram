@@ -47,6 +47,7 @@ import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.BubbleActivity;
 import org.telegram.ui.Components.Paint.PhotoFace;
+import org.telegram.ui.Components.Paint.Views.BlurPaintView;
 import org.telegram.ui.Components.Paint.Views.EntitiesContainerView;
 import org.telegram.ui.Components.Paint.Views.EntityView;
 import org.telegram.ui.Components.Paint.Views.StickerView;
@@ -320,7 +321,9 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         blurButton.setImageResource(R.drawable.blur_linear);
         blurButton.setBackgroundDrawable(Theme.createSelectorDrawable(Theme.ACTION_BAR_WHITE_SELECTOR_COLOR));
         toolsView.addView(blurButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 96, 0, 0, 0));
-        blurButton.setOnClickListener(v -> {selectedTool = 3;});
+        blurButton.setOnClickListener(v -> {
+            createBlur(originalBitmap, true);
+        });
 
         colorPicker.setUndoEnabled(false);
         setCurrentSwatch(colorPicker.getSwatch(), false);
@@ -1128,6 +1131,21 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
             editSelectedTextEntity();
         }
         setCurrentSwatch(swatch, true);
+        return view;
+    }
+
+    private BlurPaintView createBlur(Bitmap originalBitmap, boolean select){
+        BlurPaintView view = new BlurPaintView(getContext(), startPositionRelativeToEntity(null), originalBitmap);
+        view.setDelegate(this);
+        entitiesView.addView(view, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+        if (currentCropState != null) {
+            view.scale(1.0f / currentCropState.cropScale);
+            view.rotate(-(currentCropState.transformRotation + currentCropState.cropRotate));
+        }
+        if (select) {
+            registerRemovalUndo(view);
+            selectEntity(view);
+        }
         return view;
     }
 
