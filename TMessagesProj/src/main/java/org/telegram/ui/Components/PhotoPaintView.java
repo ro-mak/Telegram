@@ -89,6 +89,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     private FrameLayout dimView;
     private FrameLayout textDimView;
     private FrameLayout selectionContainerView;
+    private FrameLayout blurView;
     private ColorPicker colorPicker;
 
     private float transformX;
@@ -101,6 +102,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     private EntityView currentEntityView;
 
     private boolean editingText;
+    private boolean editingBlur;
     private Point editedTextPosition;
     private float editedTextRotation;
     private float editedTextScale;
@@ -192,7 +194,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         entitiesView = new EntitiesContainerView(context, new EntitiesContainerView.EntitiesContainerViewDelegate() {
             @Override
             public boolean shouldReceiveTouches() {
-                return textDimView.getVisibility() != VISIBLE;
+                return textDimView.getVisibility() != VISIBLE && blurView.getVisibility() != VISIBLE;
             }
 
             @Override
@@ -218,6 +220,12 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         textDimView.setBackgroundColor(0x66000000);
         textDimView.setVisibility(GONE);
         textDimView.setOnClickListener(v -> closeTextEnter(true));
+
+        blurView = new FrameLayout(context);
+        blurView.setAlpha(0);
+        blurView.setBackgroundColor(0x66000000);
+        blurView.setVisibility(GONE);
+        blurView.setOnClickListener(v -> closeBlurEditing(true));
 
         selectionContainerView = new FrameLayout(context) {
             @Override
@@ -385,6 +393,8 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         if (currentEntityView != null) {
             if (editingText) {
                 closeTextEnter(true);
+            } else if (editingBlur) {
+                closeBlurEditing(true);
             } else {
                 selectEntity(null);
             }
@@ -618,6 +628,9 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         if (editingText) {
             closeTextEnter(false);
             return;
+        } else if (editingBlur) {
+            closeBlurEditing(false);
+            return;
         }
 
         if (hasChanges()) {
@@ -705,6 +718,28 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         animator.start();
     }
 
+    private void setBlurViewVisibility(final boolean visible, EntityView view) {
+
+        if (visible && view != null) {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if (blurView.getParent() != null) {
+                ((EntitiesContainerView) blurView.getParent()).removeView(blurView);
+            }
+            parent.addView(blurView, parent.indexOfChild(view));
+        }
+
+        view.setSelectionVisibility(!visible);
+
+        if (visible) {
+            blurView.setVisibility(VISIBLE);
+        } else {
+            blurView.setVisibility(GONE);
+            if (blurView.getParent() != null) {
+                ((EntitiesContainerView) blurView.getParent()).removeView(blurView);
+            }
+        }
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         ignoreLayout = true;
@@ -772,6 +807,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         colorPicker.layout(0, actionBarHeight2, colorPicker.getMeasuredWidth(), actionBarHeight2 + colorPicker.getMeasuredHeight());
         toolsView.layout(0, height - toolsView.getMeasuredHeight(), toolsView.getMeasuredWidth(), height);
         curtainView.layout(0, y, curtainView.getMeasuredWidth(), y + curtainView.getMeasuredHeight());
+        blurView.layout(0, y, blurView.getMeasuredWidth(), y + blurView.getMeasuredHeight());
     }
 
     @Override
@@ -810,7 +846,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
 
     @Override
     public boolean allowInteraction(EntityView entityView) {
-        return !editingText;
+        return !editingText && !editingBlur;
     }
 
     @Override
@@ -986,7 +1022,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
 
         if (currentEntityView != null) {
             if (currentEntityView == entityView) {
-                if (!editingText) {
+                if (!editingText && !editingBlur) {
                     showMenuForEntity(currentEntityView);
                 }
                 return true;
@@ -1026,6 +1062,8 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
             currentEntityView.deselect();
             if (editingText) {
                 closeTextEnter(false);
+            } else if (editingBlur) {
+                closeBlurEditing(false);
             }
             currentEntityView = null;
             updateSettingsButton();
@@ -1159,6 +1197,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         if (select) {
             registerRemovalUndo(view);
             selectEntity(view);
+            editBlur();
         }
         return view;
     }
@@ -1233,6 +1272,26 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         initialText = null;
 
         curtainView.setVisibility(View.GONE);
+    }
+
+    private void editBlur(){
+        if(!(currentEntityView instanceof BlurPaintView) || editingBlur) {
+            return;
+        }
+        BlurPaintView blurPaintView = (BlurPaintView) currentEntityView;
+        setBlurViewVisibility(true, blurPaintView);
+        toolsView.setVisibility(GONE);
+        editingText = true;
+    }
+
+    private void closeBlurEditing(boolean apply) {
+        if(!editingBlur && !(currentEntityView instanceof BlurPaintView)) {
+            return;
+        }
+        BlurPaintView blurPaintView = (BlurPaintView) currentEntityView;
+        setBlurViewVisibility(false, blurPaintView);
+        toolsView.setVisibility(VISIBLE);
+        editingBlur = false;
     }
 
     private void setBrush(int brush) {
