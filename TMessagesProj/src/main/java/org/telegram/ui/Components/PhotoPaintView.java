@@ -135,8 +135,6 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
 
     private MediaController.CropState currentCropState;
 
-    private int selectedTool = 0;
-
     public PhotoPaintView(Context context, Bitmap bitmap, Bitmap originalBitmap, int originalRotation, ArrayList<VideoEditedInfo.MediaEntity> entities, MediaController.CropState cropState, Runnable onInit) {
         super(context);
 
@@ -983,10 +981,6 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private boolean selectEntity(EntityView entityView) {
-        if (entityView instanceof StickerView) selectedTool = 1;
-        else if (entityView instanceof TextPaintView) selectedTool = 2;
-        else if (entityView instanceof BlurPaintView) selectedTool = 3;
-        else selectedTool = 0;
 
         boolean changed = false;
 
