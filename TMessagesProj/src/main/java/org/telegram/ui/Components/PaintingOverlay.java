@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.FileLoader;
@@ -212,6 +213,10 @@ public class PaintingOverlay extends FrameLayout {
                         editText.setShadowLayer(5, 0, 1, 0x66000000);
                     }
                     entity.view = editText;
+                } else if (entity.type == 2) {
+                    ImageView blurResult = new ImageView(getContext());
+                    blurResult.setImageBitmap(entity.bitmap);
+                    entity.view = blurResult;
                 }
                 addView(entity.view);
                 entity.view.setRotation((float) (-entity.rotation / Math.PI * 180));

@@ -7,8 +7,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.view.Gravity;
+import android.widget.ImageView;
 
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.Paint.BlurCreator;
 import org.telegram.ui.Components.Point;
 
@@ -19,21 +22,39 @@ public class BlurPaintView extends EntityView  {
 
     public BlurPaintView(Context context, Point pos, Bitmap originalBitmap) {
         super(context, pos);
-        blurredBitmap = cropOriginalBitmap(originalBitmap);
+        int widthHalf = originalBitmap.getWidth()/2;
+        int heightHalf = originalBitmap.getHeight()/2;
+        blurredBitmap = blurRegion(originalBitmap, widthHalf - 100, heightHalf - 100, widthHalf + 100,heightHalf + 100, 15f);
+        ImageView imageView = new ImageView(context);
+        ImageView imageView2 = new ImageView(context);
+        imageView.setImageBitmap(blurredBitmap);
+        imageView2.setImageBitmap(originalBitmap);
+        addView(imageView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER));
+        addView(imageView2,LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER));
     }
-    private Bitmap cropOriginalBitmap(Bitmap originalBitmap) {
-        Bitmap copyOfOriginal = originalBitmap.copy(Bitmap.Config.ARGB_8888, true);
-        Bitmap blurred = BlurCreator.blur(ApplicationLoader.applicationContext, copyOfOriginal);
-        Bitmap bmOverlay = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+    private Bitmap blurRegion(Bitmap originalBitmap, int left, int top, int right, int bottom, float blurRadius) {
+        Bitmap blurred = BlurCreator.blur(ApplicationLoader.applicationContext, originalBitmap, blurRadius);
+        Bitmap originalBackground = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap blurredBackground = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
 
         Paint paint = new Paint();
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        Paint cropPaint = new Paint();
+        cropPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
-        Canvas canvas = new Canvas(bmOverlay);
-        canvas.drawBitmap(blurred, 0, 0, null);
-        canvas.drawRect(0, 0, 300, 300, paint);
+        Canvas blurredCanvas = new Canvas(blurredBackground);
+        Canvas originalBitmapCanvas = new Canvas(originalBackground);
 
-        return bmOverlay;
+        originalBitmapCanvas.drawBitmap(originalBitmap, 0, 0, null);
+
+        originalBitmapCanvas.drawRect(left, top, right, bottom, cropPaint);
+        blurredCanvas.drawBitmap(blurred, 0, 0, paint);
+        blurredCanvas.drawBitmap(originalBackground, 0, 0, paint);
+
+        return blurredBackground;
+    }
+
+    public Bitmap getResultBitmap(){
+        return blurredBitmap;
     }
 
     @Override
