@@ -782,6 +782,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         colorPicker.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.EXACTLY));
         toolsView.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(48), MeasureSpec.EXACTLY));
         curtainView.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.EXACTLY));
+        blurView.measure(MeasureSpec.makeMeasureSpec((int) renderWidth, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec((int) renderHeight, MeasureSpec.EXACTLY));
         ignoreLayout = false;
     }
 
@@ -1093,7 +1094,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
             entitiesView.addView(newTextPaintView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
             entityView = newTextPaintView;
         } else if (currentEntityView instanceof BlurPaintView) {
-            BlurPaintView newBlurPaintView = new BlurPaintView(getContext(), position, facesBitmap);
+            BlurPaintView newBlurPaintView = new BlurPaintView(getContext(), position, facesBitmap, renderView.getBitmap());
             newBlurPaintView.setDelegate(this);
             entityView = newBlurPaintView;
         }
@@ -1188,10 +1189,13 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private BlurPaintView createBlur(Bitmap originalBitmap, boolean select){
-        BlurPaintView view = new BlurPaintView(getContext(), new Point(0,0), originalBitmap);
+        BlurPaintView view = new BlurPaintView(getContext(), new Point(0,0), originalBitmap, renderView.getBitmap());
         view.setDelegate(this);
-        entitiesView.addView(view, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
-
+        entitiesView.addView(view, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+        if (currentCropState != null) {
+            view.scale(1.0f / currentCropState.cropScale);
+            view.rotate(-(currentCropState.transformRotation + currentCropState.cropRotate));
+        }
         if (select) {
             registerRemovalUndo(view);
             selectEntity(view);
@@ -1277,6 +1281,13 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
             return;
         }
         BlurPaintView blurPaintView = (BlurPaintView) currentEntityView;
+        if (currentCropState != null) {
+            blurPaintView.setRotation(-(currentCropState.transformRotation + currentCropState.cropRotate));
+            blurPaintView.setScale(1.0f / currentCropState.cropScale);
+        } else {
+            blurPaintView.setRotation(0.0f);
+            blurPaintView.setScale(1.0f);
+        }
         setBlurViewVisibility(true, blurPaintView);
 
         toolsView.setVisibility(GONE);

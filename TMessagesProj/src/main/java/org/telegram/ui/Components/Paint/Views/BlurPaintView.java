@@ -18,17 +18,23 @@ import org.telegram.ui.Components.Point;
 public class BlurPaintView extends EntityView  {
 
     private Bitmap blurredBitmap;
-    private Paint paint = new Paint();
 
-    public BlurPaintView(Context context, Point pos, Bitmap originalBitmap) {
+
+    public BlurPaintView(Context context, Point pos, Bitmap originalBitmap, Bitmap bitmapToEdit) {
         super(context, pos);
+        Bitmap combinedBitmap = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas combineCanvas = new Canvas(combinedBitmap);
+        Paint combinePaint = new Paint();
+        combinePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER));
+        combineCanvas.drawBitmap(originalBitmap, 0f, 0f, combinePaint);
+        combineCanvas.drawBitmap(bitmapToEdit, 0f, 0f, combinePaint);
         int widthHalf = originalBitmap.getWidth()/2;
         int heightHalf = originalBitmap.getHeight()/2;
-        blurredBitmap = blurRegion(originalBitmap, widthHalf - 100, heightHalf - 100, widthHalf + 100,heightHalf + 100, 15f);
+        blurredBitmap = blurRegion(combinedBitmap, widthHalf - 100, heightHalf - 100, widthHalf + 100,heightHalf + 100, 15f);
         ImageView imageView = new ImageView(context);
         ImageView imageView2 = new ImageView(context);
         imageView.setImageBitmap(blurredBitmap);
-        imageView2.setImageBitmap(originalBitmap);
+        imageView2.setImageBitmap(combinedBitmap);
         addView(imageView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER));
         addView(imageView2,LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER));
     }
