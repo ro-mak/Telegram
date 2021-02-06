@@ -18,6 +18,8 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.google.android.exoplayer2.util.Log;
+
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLoader;
@@ -30,6 +32,7 @@ import org.telegram.messenger.VideoEditedInfo;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.BubbleActivity;
 import org.telegram.ui.Components.Paint.Swatch;
+import org.telegram.ui.Components.Paint.Views.BlurPaintView;
 import org.telegram.ui.Components.Paint.Views.TextPaintView;
 import org.telegram.ui.Components.PaintingOverlay;
 import org.telegram.ui.Components.Point;
@@ -900,6 +903,7 @@ public class CropView extends FrameLayout implements CropAreaView.AreaViewListen
                 float widthScale = b.getWidth() / (float) canvasBitmap.getWidth();
                 newScale *= widthScale;
                 TextPaintView textPaintView = null;
+                BlurPaintView blurPaintView = null;
                 for (int a = 0, N = entities.size(); a < N; a++) {
                     VideoEditedInfo.MediaEntity entity = entities.get(a);
 
@@ -930,6 +934,13 @@ public class CropView extends FrameLayout implements CropAreaView.AreaViewListen
                         textPaintView.measure(MeasureSpec.makeMeasureSpec(canvasBitmap.getWidth(), MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(canvasBitmap.getHeight(), MeasureSpec.AT_MOST));
                         entity.viewWidth = textPaintView.getMeasuredWidth();
                         entity.viewHeight = textPaintView.getMeasuredHeight();
+                    } else if (entity.type == 2) {
+                        Log.d("Blur", "CropView entity.type == 2");
+                        if (blurPaintView == null) {
+                            blurPaintView = new BlurPaintView(context,new Point(0, 0), entity.bitmap, entity.bitmap);
+                        }
+                        entity.viewWidth = blurPaintView.getMeasuredWidth();
+                        entity.viewHeight = blurPaintView.getMeasuredHeight();
                     }
                     entity.scale *= newScale;
 

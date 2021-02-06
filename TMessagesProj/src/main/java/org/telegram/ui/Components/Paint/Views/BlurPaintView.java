@@ -20,8 +20,7 @@ import org.telegram.ui.Components.Point;
 public class BlurPaintView extends EntityView {
 
     private Bitmap resultBitmap;
-    private BlurSelectionView selectionView;
-
+    private Paint paint = new Paint();
 
     public BlurPaintView(
             Context context,
@@ -43,7 +42,7 @@ public class BlurPaintView extends EntityView {
         resultBitmap = combinedBitmap;
         ImageView imageView2 = new ImageView(context);
         imageView2.setImageBitmap(resultBitmap);
-        addView(imageView2, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER));
+        addView(imageView2, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP));
         setOnTouchListener(new OnTouchListener() {
                                @Override
                                public boolean onTouch(View v, MotionEvent event) {
@@ -54,7 +53,7 @@ public class BlurPaintView extends EntityView {
                                            int x = (int) event.getX();
                                            int y = (int) event.getY();
                                            resultBitmap = blurRegion(resultBitmap, x - 100, y - 100, x + 100, y + 100, 15f);
-                                           selectionView.invalidate();
+                                           invalidate();
                                            break;
                                        default:
                                            performClick();
@@ -63,6 +62,12 @@ public class BlurPaintView extends EntityView {
                                }
                            }
         );
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.drawBitmap(resultBitmap, 0, 0, paint);
     }
 
     private Bitmap blurRegion(Bitmap originalBitmap, int left, int top, int right, int bottom, float blurRadius) {
@@ -92,10 +97,7 @@ public class BlurPaintView extends EntityView {
 
     @Override
     protected SelectionView createSelectionView() {
-        if (selectionView == null){
-            selectionView = new BlurSelectionView(getContext());
-        }
-        return selectionView;
+        return new BlurSelectionView(getContext());
     }
 
     public class BlurSelectionView extends SelectionView {
