@@ -266,8 +266,8 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                         mirrorSticker();
                     } else if (currentEntityView instanceof TextPaintView) {
                         showTextSettings();
-                    } else if (currentEntityView instanceof  BlurPaintView) {
-                       Log.d("Blur", "Blur settings pressed");
+                    } else if (currentEntityView instanceof BlurPaintView) {
+                        Log.d("Blur", "Blur settings pressed");
                     }
                 } else {
                     showBrushSettings();
@@ -315,7 +315,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         stickerButton.setScaleType(ImageView.ScaleType.CENTER);
         stickerButton.setImageResource(R.drawable.photo_sticker);
         stickerButton.setBackgroundDrawable(Theme.createSelectorDrawable(Theme.ACTION_BAR_WHITE_SELECTOR_COLOR));
-        toolsView.addView(stickerButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 0,0,16,0));
+        toolsView.addView(stickerButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 0, 0, 16, 0));
         stickerButton.setOnClickListener(v -> openStickersView());
 
         ImageView textButton = new ImageView(context);
@@ -331,6 +331,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         blurButton.setBackgroundDrawable(Theme.createSelectorDrawable(Theme.ACTION_BAR_WHITE_SELECTOR_COLOR));
         toolsView.addView(blurButton, LayoutHelper.createFrame(54, LayoutHelper.MATCH_PARENT, Gravity.CENTER, 96, 0, 0, 0));
         blurButton.setOnClickListener(v -> {
+            if (originalBitmap == null) return;
             createBlur(originalBitmap, true);
         });
 
@@ -369,6 +370,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                     view = textPaintView;
                 } else if (entity.type == 2) {
                     Log.d("Blur", "Entity type 2");
+                    if (originalBitmap == null) continue;
                     BlurPaintView blurPaintView = createBlur(originalBitmap, false);
                     view = blurPaintView;
                 } else {
@@ -1188,8 +1190,8 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
         return view;
     }
 
-    private BlurPaintView createBlur(Bitmap originalBitmap, boolean select){
-        BlurPaintView view = new BlurPaintView(getContext(), new Point(0,0), originalBitmap, renderView.getBitmap());
+    private BlurPaintView createBlur(Bitmap originalBitmap, boolean select) {
+        BlurPaintView view = new BlurPaintView(getContext(), new Point(0, 0), originalBitmap, renderView.getBitmap());
         view.setDelegate(this);
         entitiesView.addView(view, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
         if (currentCropState != null) {
@@ -1277,7 +1279,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private void editBlur() {
-        if(!(currentEntityView instanceof BlurPaintView) || editingBlur) {
+        if (!(currentEntityView instanceof BlurPaintView) || editingBlur) {
             return;
         }
         BlurPaintView blurPaintView = (BlurPaintView) currentEntityView;
@@ -1295,7 +1297,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private void closeBlurEditing(boolean apply) {
-        if(!editingBlur && !(currentEntityView instanceof BlurPaintView)) {
+        if (!editingBlur && !(currentEntityView instanceof BlurPaintView)) {
             return;
         }
         BlurPaintView blurPaintView = (BlurPaintView) currentEntityView;
