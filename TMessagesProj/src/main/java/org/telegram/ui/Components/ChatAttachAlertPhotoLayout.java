@@ -88,6 +88,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.exoplayer2.util.Log;
+
 public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayout implements NotificationCenter.NotificationCenterDelegate {
 
     private RecyclerListView cameraPhotoRecyclerView;
@@ -359,6 +361,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
 
         @Override
         public void sendButtonPressed(int index, VideoEditedInfo videoEditedInfo, boolean notify, int scheduleDate) {
+            Log.d("Blur", "SendButtonPressed");
             MediaController.PhotoEntry photoEntry = getPhotoEntryAtPosition(index);
             if (photoEntry != null) {
                 photoEntry.editedInfo = videoEditedInfo;
@@ -367,6 +370,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 addToSelectedPhotos(photoEntry, -1);
             }
             parentAlert.applyCaption();
+            Log.d("Blur", "Did pressed on delegate " + parentAlert.delegate);
             parentAlert.delegate.didPressedButton(7, true, notify, scheduleDate);
         }
     };

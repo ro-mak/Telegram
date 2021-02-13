@@ -12,6 +12,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.google.android.exoplayer2.util.Log;
+
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.Paint.BlurCreator;
@@ -21,6 +23,9 @@ public class BlurPaintView extends EntityView {
 
     private Bitmap resultBitmap;
     private Paint paint = new Paint();
+    private Bitmap originalBitmap;
+    private Bitmap bitmapToEdit;
+    private ImageView imageView2;
 
     public BlurPaintView(
             Context context,
@@ -29,10 +34,13 @@ public class BlurPaintView extends EntityView {
             Bitmap bitmapToEdit
     ) {
         super(context, pos);
+        setWillNotDraw(false);
         if (context == null) return;
         if (pos == null) return;
         if (originalBitmap == null) return;
         if (bitmapToEdit == null) return;
+        this.originalBitmap = originalBitmap;
+        this.bitmapToEdit = bitmapToEdit;
         Bitmap combinedBitmap = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas combineCanvas = new Canvas(combinedBitmap);
         Paint combinePaint = new Paint();
@@ -40,7 +48,7 @@ public class BlurPaintView extends EntityView {
         combineCanvas.drawBitmap(originalBitmap, 0f, 0f, combinePaint);
         combineCanvas.drawBitmap(bitmapToEdit, 0f, 0f, combinePaint);
         resultBitmap = combinedBitmap;
-        ImageView imageView2 = new ImageView(context);
+        imageView2 = new ImageView(context);
         imageView2.setImageBitmap(resultBitmap);
         addView(imageView2, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP));
         setOnTouchListener(new OnTouchListener() {
@@ -53,7 +61,13 @@ public class BlurPaintView extends EntityView {
                                            int x = (int) event.getX();
                                            int y = (int) event.getY();
                                            resultBitmap = blurRegion(resultBitmap, x - 100, y - 100, x + 100, y + 100, 15f);
+                                           imageView2.setImageBitmap(resultBitmap);
                                            invalidate();
+                                           for (int i = 0; i < getChildCount(); i++) {
+                                               View child = getChildAt(i);
+                                               child.invalidate();
+                                           }
+                                           updateSelectionView();
                                            break;
                                        default:
                                            performClick();
@@ -64,9 +78,18 @@ public class BlurPaintView extends EntityView {
         );
     }
 
+    public void setMaxWidth(int maxWidth) {
+     //   imageView2.setMaxWidth(maxWidth);
+    }
+
+    public BlurPaintView(Context context, BlurPaintView blurPaintView, Point pos) {
+       this(context, pos, blurPaintView.originalBitmap, blurPaintView.bitmapToEdit);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.d("Blur", "Draw");
         canvas.drawBitmap(resultBitmap, 0, 0, paint);
     }
 
@@ -108,7 +131,6 @@ public class BlurPaintView extends EntityView {
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            canvas.drawBitmap(resultBitmap,0,0,paint);
         }
     }
 

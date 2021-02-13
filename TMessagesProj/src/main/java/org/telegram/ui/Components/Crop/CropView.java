@@ -939,6 +939,7 @@ public class CropView extends FrameLayout implements CropAreaView.AreaViewListen
                         if (blurPaintView == null) {
                             blurPaintView = new BlurPaintView(context,new Point(0, 0), entity.bitmap, entity.bitmap);
                         }
+                        blurPaintView.measure(MeasureSpec.makeMeasureSpec(canvasBitmap.getWidth(), MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(canvasBitmap.getHeight(), MeasureSpec.AT_MOST));
                         entity.viewWidth = blurPaintView.getMeasuredWidth();
                         entity.viewHeight = blurPaintView.getMeasuredHeight();
                     }

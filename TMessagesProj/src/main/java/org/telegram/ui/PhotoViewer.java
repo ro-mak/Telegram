@@ -125,6 +125,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
@@ -5546,6 +5547,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
     private void sendPressed(boolean notify, int scheduleDate, boolean replace) {
+        Log.d("Blur", "Send pressed");
         if (captionEditText.getTag() != null) {
             return;
         }
@@ -5569,6 +5571,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
             doneButtonPressed = true;
             if (!replace) {
+                Log.d("Blur", "Place provider " + placeProvider + " sendButtonPressed");
                 placeProvider.sendButtonPressed(currentIndex, videoEditedInfo, notify, scheduleDate);
             } else {
                 placeProvider.replaceButtonPressed(currentIndex, videoEditedInfo);

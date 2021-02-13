@@ -52,6 +52,8 @@ import javax.microedition.khronos.opengles.GL10;
 import androidx.annotation.RequiresApi;
 import androidx.exifinterface.media.ExifInterface;
 
+import com.google.android.exoplayer2.util.Log;
+
 public class TextureRenderer {
 
     private FloatBuffer verticesBuffer;
@@ -671,6 +673,8 @@ public class TextureRenderer {
                         entity.bitmap = Bitmap.createBitmap(entity.viewWidth, entity.viewHeight, Bitmap.Config.ARGB_8888);
                         Canvas canvas = new Canvas(entity.bitmap);
                         editText.draw(canvas);
+                    }else if (entity.type == 2){
+                        Log.d("Blur", "onSurfaceCreated TextureRenderer");
                     }
                 }
             } catch (Throwable e) {

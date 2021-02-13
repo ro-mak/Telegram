@@ -614,6 +614,10 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                         FileLog.e(e);
                     }
                     b.recycle();
+                } else if (v instanceof BlurPaintView) {
+                    BlurPaintView entityView = (BlurPaintView) currentEntityView;
+                    entityView.draw(canvas);
+                    Log.d("Blur", "getBitmap v.draw");
                 } else {
                     v.draw(canvas);
                 }
@@ -1096,8 +1100,9 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
             entitiesView.addView(newTextPaintView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
             entityView = newTextPaintView;
         } else if (currentEntityView instanceof BlurPaintView) {
-            BlurPaintView newBlurPaintView = new BlurPaintView(getContext(), position, facesBitmap, renderView.getBitmap());
+            BlurPaintView newBlurPaintView = new BlurPaintView(getContext(), (BlurPaintView) currentEntityView, position);
             newBlurPaintView.setDelegate(this);
+            entitiesView.addView(newBlurPaintView);
             entityView = newBlurPaintView;
         }
 
@@ -1193,6 +1198,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     private BlurPaintView createBlur(Bitmap originalBitmap, boolean select) {
         BlurPaintView view = new BlurPaintView(getContext(), new Point(0, 0), originalBitmap, renderView.getBitmap());
         view.setDelegate(this);
+        view.setMaxWidth((int) (paintingSize.width - 20));
         entitiesView.addView(view, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
         if (currentCropState != null) {
             view.scale(1.0f / currentCropState.cropScale);
