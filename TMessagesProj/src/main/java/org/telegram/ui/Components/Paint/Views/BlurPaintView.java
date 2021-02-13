@@ -34,11 +34,9 @@ public class BlurPaintView extends EntityView {
             Bitmap bitmapToEdit
     ) {
         super(context, pos);
+        Log.d("Blur", "BlurPaintView construction start");
         setWillNotDraw(false);
-        if (context == null) return;
-        if (pos == null) return;
-        if (originalBitmap == null) return;
-        if (bitmapToEdit == null) return;
+        Log.d("Blur", "BlurPaintView construction success");
         this.originalBitmap = originalBitmap;
         this.bitmapToEdit = bitmapToEdit;
         Bitmap combinedBitmap = Bitmap.createBitmap(originalBitmap.getWidth(), originalBitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -84,6 +82,7 @@ public class BlurPaintView extends EntityView {
 
     public BlurPaintView(Context context, BlurPaintView blurPaintView, Point pos) {
        this(context, pos, blurPaintView.originalBitmap, blurPaintView.bitmapToEdit);
+        Log.d("Blur", "Second constructor");
     }
 
     @Override

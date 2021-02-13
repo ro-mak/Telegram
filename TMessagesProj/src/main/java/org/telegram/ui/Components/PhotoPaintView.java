@@ -139,7 +139,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
 
     public PhotoPaintView(Context context, Bitmap bitmap, Bitmap originalBitmap, int originalRotation, ArrayList<VideoEditedInfo.MediaEntity> entities, MediaController.CropState cropState, Runnable onInit) {
         super(context);
-
+        Log.d("Blur", "PhotoPaintView created bitmap " + bitmap + " originalBitmap " + originalBitmap);
         inBubbleMode = context instanceof BubbleActivity;
         currentCropState = cropState;
         queue = new DispatchQueue("Paint");
@@ -372,6 +372,7 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                     Log.d("Blur", "Entity type 2");
                     if (originalBitmap == null) continue;
                     BlurPaintView blurPaintView = createBlur(originalBitmap, false);
+                    if (blurPaintView == null) continue;
                     view = blurPaintView;
                 } else {
                     continue;
@@ -614,10 +615,6 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
                         FileLog.e(e);
                     }
                     b.recycle();
-                } else if (v instanceof BlurPaintView) {
-                    BlurPaintView entityView = (BlurPaintView) currentEntityView;
-                    entityView.draw(canvas);
-                    Log.d("Blur", "getBitmap v.draw");
                 } else {
                     v.draw(canvas);
                 }
@@ -1196,7 +1193,11 @@ public class PhotoPaintView extends FrameLayout implements EntityView.EntityView
     }
 
     private BlurPaintView createBlur(Bitmap originalBitmap, boolean select) {
-        BlurPaintView view = new BlurPaintView(getContext(), new Point(0, 0), originalBitmap, renderView.getBitmap());
+        Log.d("Blur","create Blur Orig bit " + originalBitmap + " renderView " + renderView + " renderBit " + renderView.getBitmap() +  " select " + select);
+        ArrayList<VideoEditedInfo.MediaEntity> entities = new ArrayList<>();
+        Bitmap currentDrawingBitmap = getBitmap(entities, new Bitmap[1]);
+        if (currentDrawingBitmap == null) return null;
+        BlurPaintView view = new BlurPaintView(getContext(), new Point(0, 0), originalBitmap, currentDrawingBitmap);
         view.setDelegate(this);
         view.setMaxWidth((int) (paintingSize.width - 20));
         entitiesView.addView(view, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));

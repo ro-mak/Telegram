@@ -5,6 +5,8 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.opengl.GLES20;
 
+import com.google.android.exoplayer2.util.Log;
+
 import org.telegram.messenger.DispatchQueue;
 import org.telegram.ui.Components.Size;
 
@@ -376,6 +378,7 @@ public class Painting {
     }
 
     public PaintingData getPaintingData(RectF rect, boolean undo) {
+        Log.d("Blur", "Get painting data");
         int minX = (int) rect.left;
         int minY = (int) rect.top;
         int width = (int) rect.width();
@@ -384,19 +387,19 @@ public class Painting {
         GLES20.glGenFramebuffers(1, buffers, 0);
         int framebuffer = buffers[0];
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
-
+        Log.d("Blur", "Get painting data2");
         GLES20.glGenTextures(1, buffers, 0);
         int texture = buffers[0];
-
+        Log.d("Blur", "Get painting data3");
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture);
         GLES20.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR);
         GLES20.glTexParameteri(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_NEAREST);
         GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
-
+        Log.d("Blur", "Get painting data4");
         GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, texture, 0);
-
+        Log.d("Blur", "Get painting data5");
         GLES20.glViewport(0, 0, (int) size.width, (int) size.height);
 
         if (shaders == null) {
@@ -407,7 +410,7 @@ public class Painting {
             return null;
         }
         GLES20.glUseProgram(shader.program);
-
+        Log.d("Blur", "Get painting data6");
         Matrix translate = new Matrix();
         translate.preTranslate(-minX, -minY);
         float[] effective = GLMatrix.LoadGraphicsMatrix(translate);
@@ -419,7 +422,7 @@ public class Painting {
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, getTexture());
-
+        Log.d("Blur", "Get painting data7");
         GLES20.glClearColor(0, 0, 0, 0);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
@@ -429,12 +432,14 @@ public class Painting {
         GLES20.glEnableVertexAttribArray(0);
         GLES20.glVertexAttribPointer(1, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
         GLES20.glEnableVertexAttribArray(1);
-
+        Log.d("Blur", "Get painting data8");
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-
+        Log.d("Blur", "Get painting data9");
         dataBuffer.limit(width * height * 4);
+        Log.d("Blur", "Get painting data10 " + dataBuffer.toString());
+        if (dataBuffer.position() != 0) dataBuffer.position(0);
         GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, dataBuffer);
-
+        Log.d("Blur","readPixels");
         PaintingData data;
         if (undo) {
             data = new PaintingData(null, dataBuffer);
