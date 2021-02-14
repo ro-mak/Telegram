@@ -439,6 +439,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
 
     public ChatAttachAlertPhotoLayout(ChatAttachAlert alert, Context context) {
         super(alert, context);
+        Log.d("Blur", "Created PhotoLayout");
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.albumsDidLoad);
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.cameraInitied);
         FrameLayout container = alert.getContainer();
@@ -1611,6 +1612,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
     }
 
     public void loadGalleryPhotos() {
+        Log.d("Blur", "loadGalleryPhotos in ChatAttachAlertPhotoLayout");
         MediaController.AlbumEntry albumEntry;
         if (parentAlert.baseFragment instanceof ChatActivity || parentAlert.avatarPicker == 2) {
             albumEntry = MediaController.allMediaAlbumEntry;

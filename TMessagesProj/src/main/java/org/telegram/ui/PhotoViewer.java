@@ -2746,6 +2746,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
     public static PhotoViewer getInstance() {
+        Log.d("Blur", "Get Photoviewer instance ");
         PhotoViewer localInstance = Instance;
         if (localInstance == null) {
             synchronized (PhotoViewer.class) {
@@ -2767,6 +2768,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
     public PhotoViewer() {
+    Log.d("Blur", "PhotoViewer created");
         blackPaint.setColor(0xff000000);
     }
 
@@ -11087,6 +11089,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
     }
 
     public boolean openPhotoForSelect(final ArrayList<Object> photos, final int index, int type, boolean documentsPicker, final PhotoViewerProvider provider, ChatActivity chatActivity) {
+        Log.d("Blur", "Open photo for select");
         isDocumentsPicker = documentsPicker;
         if (pickerViewSendButton != null) {
             FrameLayout.LayoutParams layoutParams2 = (FrameLayout.LayoutParams) pickerViewSendButton.getLayoutParams();

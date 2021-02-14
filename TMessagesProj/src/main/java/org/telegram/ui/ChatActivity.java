@@ -8546,6 +8546,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     }
 
     private void openAttachMenu() {
+        Log.d("Blur","openAttachMenu in ChatActivity");
         if (getParentActivity() == null || chatActivityEnterView != null && !TextUtils.isEmpty(chatActivityEnterView.getSlowModeTimer())) {
             return;
         }
